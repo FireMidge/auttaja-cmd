@@ -1,0 +1,21 @@
+{
+    "name": "firemidge/auttaja-cmd",
+    "description": "A command line tool for projects based on the DDD Skeleton, to make set-up and repetitive development tasks as straightforward as possible",
+    "type": "plugin",
+    "authors": [
+        {
+            "name": "Jay Atkins",
+            "email": "jay001000@gmail.com"
+        }
+    ],
+  	"minimum-stability": "dev",
+    "require": {
+	  "php": ">=7.2.0"
+	},
+	"autoload": {
+	  "psr-0": {
+		"AuttajaCmd": "src/"
+	  }
+	},
+  	"bin": ["auttaja-cmd.php"]
+}
