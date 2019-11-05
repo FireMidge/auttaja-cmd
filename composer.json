@@ -8,7 +8,7 @@
             "email": "jay001000@gmail.com"
         }
     ],
-  	"minimum-stability": "dev",
+  	"minimum-stability": "stable",
     "require": {
 	  "php": ">=7.2.0"
 	},
