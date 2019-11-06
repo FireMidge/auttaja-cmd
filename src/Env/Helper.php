@@ -1,10 +1,10 @@
 <?php
 
-namespace Env;
+namespace AuttajaCmd\Env;
 
 class Helper
 {
-    public function getEnvVarScopeFromPath(string $path) : string
+    public function getEnvVarScopeFromTemplatePath(string $path) : string
     {
         $matches = [];
         preg_match('#\.env(\.(\w*))?\.template$#', $path, $matches);
@@ -16,6 +16,13 @@ class Helper
 
     public function getDestinationFileFromTemplate(string $templatePath) : string
     {
-        return sscanf('%s.template', $templatePath);
+        $matches = [];
+        preg_match('#([\.\w]+)\.template#', $templatePath, $matches);
+
+        if (empty($matches) || ! isset($matches[1])) {
+            throw new \Exception(sprintf('Templates must end in .template; "%s" is invalid.',$templatePath));
+        }
+
+        return $matches[1];
     }
 }

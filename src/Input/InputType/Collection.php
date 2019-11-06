@@ -12,7 +12,7 @@ class Collection
 
     public function __construct(array $inputTypes = [])
     {
-        foreach ($inputTypes as $k => $inputType) {
+        foreach ($inputTypes as $inputType) {
             if (! $inputType instanceof InputType) {
                 throw new \Exception(sprintf(
                     'Item with key "%s" added to InputType collection is not an instance of InputType', $k
@@ -20,19 +20,19 @@ class Collection
             }
 
             if ($inputType->shouldAskForInput()) {
-                $this->inputTypesToAsk[$k] = $inputType;
+                $this->inputTypesToAsk[] = $inputType;
             }
         }
 
         $this->inputTypes = $inputTypes;
     }
 
-    public function add(string $questionText, InputType $input) : self
+    public function add(InputType $input) : self
     {
-        $this->inputTypes[$questionText] = $input;
+        $this->inputTypes[] = $input;
 
         if ($input->shouldAskForInput()) {
-            $this->inputTypesToAsk[$questionText] = $input;
+            $this->inputTypesToAsk[] = $input;
         }
 
         return $this;
@@ -50,21 +50,7 @@ class Collection
 
     public function merge(Collection $collection) : self
     {
-        return new Collection($this->inputTypes + $collection->toArray());
-    }
-
-    /**
-     * Prefixes all keys (input names) with the given string.
-     * This may be needed when trying to merge two Collections that share the same keys.
-     */
-    public function withKeyPrefix(string $prefixForKey) : self
-    {
-        $self = new static();
-        foreach ($this->inputTypes as $k => $inputType) {
-            $self = $self->add($prefixForKey . $k, $inputType);
-        }
-
-        return $self;
+        return new Collection(array_merge($this->inputTypes, $collection->toArray()));
     }
 
     public function requiresUserInput() : bool

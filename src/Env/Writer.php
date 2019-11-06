@@ -1,6 +1,6 @@
 <?php
 
-namespace Env;
+namespace AuttajaCmd\Env;
 
 use AuttajaCmd\Input\State;
 
@@ -20,7 +20,7 @@ class Writer
                 $pathToTemplateFile,
                 $this->helper->getDestinationFileFromTemplate($pathToTemplateFile),
                 $state->getValuesFromBucket(State::BUCKET_ENVVARS),
-                $this->helper->getEnvVarScopeFromPath($pathToTemplateFile)
+                $this->helper->getEnvVarScopeFromTemplatePath($pathToTemplateFile)
             );
         }
     }
@@ -28,11 +28,12 @@ class Writer
     private function createEnvFile(string $pathToTemplateFile, string $destinationFile, array $environmentVariables, string $scope) : void
     {
         if (! file_exists($pathToTemplateFile)) {
-            throw new \Exception(sprintf(
-                'There is no %s file to base the new %s file on',
-                $pathToTemplateFile,
-                $destinationFile
-            ));
+            return;
+//            throw new \Exception(sprintf(
+//                'There is no %s file to base the new %s file on',
+//                $pathToTemplateFile,
+//                $destinationFile
+//            ));
         }
 
         $envFileLines = [];
@@ -71,13 +72,15 @@ class Writer
                         'Unable to determine value for environment variable "%s". '
                         . 'Perhaps no value was provided and no default specified. '
                         . PHP_EOL . 'These are the values I have: %s',
-                        $varName,
-                        PHP_EOL . implode(PHP_EOL, $environmentVariables) . PHP_EOL
+                        $scopedVarName,
+                        PHP_EOL . implode(PHP_EOL, array_keys($environmentVariables)) . PHP_EOL
                     ));
                 }
             }
         }
 
         file_put_contents($destinationFile, implode(PHP_EOL, $envFileLines));
+
+        echo 'Written to ' . $destinationFile . PHP_EOL;
     }
 }

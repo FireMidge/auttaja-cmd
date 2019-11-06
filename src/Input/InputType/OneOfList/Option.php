@@ -35,9 +35,9 @@ class Option
 		return $this;
 	}
 
-	public function addIfSelected(string $questionText, InputType $inputType) : self
+	public function addIfSelected(InputType $inputType) : self
 	{
-		$this->ifSelected = $this->ifSelected->add($questionText, $inputType);
+		$this->ifSelected = $this->ifSelected->add($inputType);
 
 		return $this;
 	}

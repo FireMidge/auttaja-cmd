@@ -9,3 +9,5 @@ ARG builduser
 USER $builduser
 
 WORKDIR /src
+
+# TODO : Start PHP-FPM or whatever we're using, so that the container doesn't immediately exit

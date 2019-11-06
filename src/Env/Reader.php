@@ -4,15 +4,10 @@ namespace AuttajaCmd\Env;
 
 use AuttajaCmd\Input\InputType\Any;
 use AuttajaCmd\Input\InputType\Collection;
-use AuttajaCmd\Input\InputType\OneOfList;
 use AuttajaCmd\Input\State;
-use Env\Helper;
 
 class Reader
 {
-    private const MAIN_TEMPLATE_FILE_PATH = '.env.template';
-    private const TEST_TEMPLATE_FILE_PATH = '.env.test.template';
-
     private $helper;
 
     public function __construct()
@@ -20,53 +15,70 @@ class Reader
         $this->helper = new Helper();
     }
 
-    public function prepareInputs(array $filePaths = []) : Collection
+    public function prepareInputs(array $filePaths, State $state, bool $forceReCreate) : Collection
     {
-        // TODO: Read the existing .env files first unless we are recreating from scratch (and save them to state)
-        // Once we have State, we can also display the default values that are going to be used.
-        // Although.. that doesn't work if it relies on a variable that we don't currently have yet (another env var)
-        // In order to be able to do that we'd have to write the defaults during execution and not upfront like here,
-        // where we are doing it all before we have the user input.
-        // TODO: Accept writing only a specific file.
+        $envVariables = new Collection();
+        foreach ($filePaths as $filePath) {
+            if (! $forceReCreate) {
+                // If we are not recreating the file from scratch, read existing variables first.
+                $this->saveVariablesFromEnvFileToState(
+                    $filePath,
+                    $state
+                );
+            }
 
-        $setUpQuestions       = $this->getVariablesFromEnvTemplateFile(self::MAIN_TEMPLATE_FILE_PATH);
-        $missingTestVariables = $this->getVariablesFromEnvTemplateFile(self::TEST_TEMPLATE_FILE_PATH);
+            $envVariables = $envVariables->merge($this->getVariablesFromEnvTemplateFile($filePath, $state));
+        }
 
-        if (! empty($missingTestVariables)) {
-            if ($missingTestVariables->requiresUserInput()) {
-                // If any user input is required, we want to start the .env.test set-up with an introductory question.
-                // This also gets around duplicate "question texts" (ie. variable names) because the .env.test variables
-                // are not stored in the same dimension as the .env variables.
-                $setUpQuestions = $setUpQuestions->merge(new Collection([
-                    new OneOfList('Would you like to set up the .env.test file now?', [
-                        'y' => (new OneOfList\Option('Yes'))->setValue(true)->setIfSelected($missingTestVariables),
-                        'n' => (new OneOfList\Option('No'))->setValue(false),
-                    ])
-                ]));
+//        return new Collection([
+//            (new OneOfList('Would you like to set up the .env file now?', [
+//                'y' => (new OneOfList\Option('Yes'))->setValue(true)->setIfSelected($setUpQuestions),
+//                'n' => (new OneOfList\Option('No'))->setValue(false),
+//            ]))->setShouldSave(false),
+//        ]);
 
-                // TODO: We currently have no way of setting up the .env.test file later, at least not in an automated way.
-            } else {
-                // If no user input is required, just process all missing variables as part of the normal .env set-up,
-                // which means all the variables will just use a default value.
-                // All the test environment variable names are prefixed with 'test.', which doesn't influence
-                // the user experience because they are "hidden questions" anyway.
-                // We have to prefix them, as otherwise they will clash with the variables in .env.
-                $setUpQuestions = $setUpQuestions->merge($missingTestVariables->withKeyPrefix('test.'));
+        return $envVariables;
+    }
+
+    private function saveVariablesFromEnvFileToState(string $templatePath, State $state) : void
+    {
+        $destinationPath = $this->helper->getDestinationFileFromTemplate($templatePath);
+
+        if (! file_exists($destinationPath)) {
+            return;
+        }
+
+        $fileHandle = fopen($destinationPath, 'r');
+        $scope      = $this->helper->getEnvVarScopeFromTemplatePath($templatePath);
+
+        while (($line = fgets($fileHandle)) !== false) {
+            $line = trim($line);
+
+            if (strlen($line) === 0) {
+                // Empty line; skip.
+                continue;
+            }
+
+            $matches = [];
+            if (preg_match('/^([\w\s]+)=\s?(.+)$/', $line, $matches) === 1) {
+                $varName = trim($matches[1]);
+                $value   = trim($matches[2]);
+
+                $state->withValue(sprintf('%s.%s', $scope, $varName), $value, State::BUCKET_ENVVARS);
             }
         }
 
-        return new Collection([
-            (new OneOfList('Would you like to set up the .env file now?', [
-                'y' => (new OneOfList\Option('Yes'))->setValue(true)->setIfSelected($setUpQuestions),
-                'n' => (new OneOfList\Option('No'))->setValue(false),
-            ])),
-        ]);
+        fclose($fileHandle);
     }
 
-    private function getVariablesFromEnvTemplateFile(string $path) : Collection
+    private function getVariablesFromEnvTemplateFile(string $path, ?State $state =  null) : Collection
     {
+        if (! file_exists($path)) {
+            return new Collection();
+        }
+
         $fileHandle = fopen($path, 'r');
-        $scope      = $this->helper->getEnvVarScopeFromPath($path);
+        $scope      = $this->helper->getEnvVarScopeFromTemplatePath($path);
 
         $variables       = [];
         $currentVariable = null;
@@ -102,16 +114,26 @@ class Reader
             } else {
                 $matches = [];
                 if (preg_match('/^([\w\s]+)=\s?({.*})?$/', $line, $matches) !== 1) {
-                    // This variable already has a value, so we skip it
+                    // This variable already has a hardcoded value, so we skip it
+                    $currentVariable = null;
+
                     continue;
                 }
 
-                $variableName = $matches[1];
+                $variableName       = $matches[1];
+                $scopedVariableName = sprintf('%s.%s', $scope, $variableName);
+
+                if ($state instanceof State && ($state->getValue($scopedVariableName, State::BUCKET_ENVVARS) !== null)) {
+                    // That variable already has a value saved against State, therefore we can skip it
+                    $currentVariable = null;
+
+                    continue;
+                }
 
                 $currentVariable->setName($variableName);
                 $currentVariable->setBucketName(State::BUCKET_ENVVARS);
 
-                $currentVariable->setKeyName(sprintf('%s.%s', $scope, $variableName));
+                $currentVariable->setKeyName($scopedVariableName);
 
                 if (isset($matches[2])) {
                     $variableSettings = json_decode($matches[2]); // TODO: error handling
@@ -138,10 +160,12 @@ class Reader
                     ($currentVariable->hasDefault() ? ' (or leave empty to use a default)' : '')
                 ));
 
-                $variables[$variableName] = $currentVariable; // Add this variable to the variable stack
-                $currentVariable          = null; // Reset the current variable, since we're done with this one now
+                $variables[]     = $currentVariable; // Add this variable to the variable stack
+                $currentVariable = null; // Reset the current variable, since we're done with this one now
             }
         }
+
+        fclose($fileHandle);
 
         return new Collection($variables);
     }

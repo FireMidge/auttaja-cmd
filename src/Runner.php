@@ -5,7 +5,7 @@ namespace AuttajaCmd;
 use AuttajaCmd\Env\Reader;
 use AuttajaCmd\Input\InputProcessor;
 use AuttajaCmd\Input\State;
-use Env\Writer;
+use AuttajaCmd\Env\Writer;
 
 class Runner
 {
@@ -13,15 +13,20 @@ class Runner
      * @param string[] $filePaths The path(s) to the .env file(s) to create.
      *                            May be the path to the template or the destination file.
      */
-    public function runEnvFileProcessor(array $filePaths = []) : void // TODO: Probably accept a string and make array conversion internally
+    public function runEnvFileProcessor(array $filePaths = [], bool $forceReCreate = false) : void
     {
+        if (empty($filePaths)) {
+            $filePaths = [
+                '.env.template',
+                '.env.test.template',
+            ];
+        }
+
         $state = new State();
 
-        $inputsToProcess = (new Reader())->prepareInputs($filePaths);
+        $inputsToProcess = (new Reader())->prepareInputs($filePaths, $state, $forceReCreate);
 
         $resultState = (new InputProcessor())->process($inputsToProcess, $state);
-
-        var_dump($resultState);
 
         (new Writer())->writeFile($resultState, $filePaths);
     }

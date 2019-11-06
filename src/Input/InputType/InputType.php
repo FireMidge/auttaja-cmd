@@ -28,9 +28,8 @@ interface InputType
 
     /**
      * This is the name of the key the input value will be saved as.
-     * If no key name is set, the user input will not be saved - which also has a valid use case.
      */
-    public function setKeyName(?string $keyName) : InputType;
+    public function setKeyName(string $keyName) : InputType;
 
     /**
      * Returns the default value (if any).

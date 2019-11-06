@@ -8,6 +8,7 @@ class State
 
     private $values = [];
 
+    // Maybe rename to addValue(). If we were to return a different instance, it'd break Env\Reader.
     public function withValue(string $key, $value, ?string $bucketName = null) : State
     {
         if ($bucketName) {
@@ -23,17 +24,22 @@ class State
         return $this;
     }
 
-    public function getValuesFromBucket(string $bucketName) : ?array
+    public function getValuesFromBucket(string $bucketName) : array
     {
         if (! array_key_exists($bucketName, $this->values)) {
-            return null;
+            return [];
         }
 
         return $this->values[$bucketName];
     }
 
-    public function getValue(string $key)
+    public function getValue(string $key, ?string $bucketName = null)
     {
+        if ($bucketName) {
+           $bucketValues = $this->getValuesFromBucket($bucketName);
+           return $bucketValues[$key] ?? null;
+        }
+
         return $this->values[$key] ?? null;
     }
 }

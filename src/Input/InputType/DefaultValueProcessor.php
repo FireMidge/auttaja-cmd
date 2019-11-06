@@ -3,7 +3,6 @@
 namespace  AuttajaCmd\Input\InputType;
 
 use AuttajaCmd\Input\State;
-use AuttajaCmd\Options;
 
 /**
  * Calculates the value of the "default" property in a .template file.
@@ -20,7 +19,7 @@ class DefaultValueProcessor
 
         if (empty ($matches)) {
             // Defaulting to shell command if no other known instruction (prefix) given
-            return $this->calculateValue($defaultMethod, $default, $envVarsWithPrefix);
+            return trim($this->calculateValue($defaultMethod, $default, $envVarsWithPrefix));
         }
 
         /**
@@ -31,10 +30,10 @@ class DefaultValueProcessor
          * @var string $afterMethod  e.g. "_test" (everything after env())
          */
         foreach ($matches as list($fullMatch, $beforeMethod, $method, $command, $afterMethod)) {
-            return $beforeMethod . $this->calculateValue($method, $command, $envVarsWithPrefix) . $afterMethod;
+            return trim($beforeMethod . $this->calculateValue($method, $command, $envVarsWithPrefix) . $afterMethod);
         }
 
-         return $default;
+        return trim($default);
     }
 
     private function calculateValue(string $method, string $command, array $envVarsWithPrefix)
@@ -54,7 +53,7 @@ class DefaultValueProcessor
                 throw new \Exception(sprintf(
                     'No environment variable found for "%s" - are you missing or misspelling a prefix? Allowed prefixes are: %s',
                     $command,
-                    implode(', ', ['global', 'test'])
+                    implode(', ', ['global', 'test']) // TODO: Allowed prefixes are dynamic
                 ));
                 break;
 

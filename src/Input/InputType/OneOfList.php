@@ -118,17 +118,26 @@ class OneOfList implements InputType
         return $this->default;
     }
 
+    public function setShouldSave(bool $shouldSave) : self
+    {
+        $this->shouldSave = $shouldSave;
+
+        return $this;
+    }
+
     /**
      * This is the name of the key the input value will be saved as.
-     * If no key name is set, the user input will not be saved - which also has a valid use case.
      */
-    public function setKeyName(?string $keyName) : InputType
+    public function setKeyName(string $keyName) : InputType
     {
         $this->keyName = $keyName;
 
         return $this;
     }
 
+    /**
+     * If set to false, the user input will not be saved - which also has a valid use case.
+     */
     public function shouldSave() : bool
     {
         return $this->shouldSave;

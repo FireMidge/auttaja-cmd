@@ -77,9 +77,8 @@ class Any implements InputType
 
     /**
      * This is the name of the key the input value will be saved as.
-     * If no key name is set, the user input will not be saved - which also has a valid use case.
      */
-    public function setKeyName(?string $keyName) : InputType
+    public function setKeyName(string $keyName) : InputType
     {
         $this->keyName = $keyName;
 
@@ -250,6 +249,6 @@ class Any implements InputType
                 break;
         }
 
-        return $state->withValue($this->keyName, $value);
+        return $state->withValue($this->keyName, $value, $this->bucketName);
     }
 }
