@@ -40,7 +40,7 @@ class Reader
         return $envVariables;
     }
 
-    private function saveVariablesFromEnvFileToState(string $templatePath, State $state) : void
+    public function saveVariablesFromEnvFileToState(string $templatePath, State $state) : void
     {
         $destinationPath = $this->helper->getDestinationFileFromTemplate($templatePath);
 
