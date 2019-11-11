@@ -4,6 +4,10 @@ require(realpath(__DIR__ . '/../../../autoload.php'));
 
 $path = realpath(__DIR__) . DIRECTORY_SEPARATOR;
 
+// TODO: In the future these will be from a config file.
+$envFilePaths    = ['.env.template', '.env.test.template', ];
+$readMeFilePaths = ['resources/readme' => '.'];
+
 switch (getCommand($argv)) {
     case null:
     case 'help':
@@ -13,9 +17,17 @@ switch (getCommand($argv)) {
 
     case 'env':
         (new \AuttajaCmd\Runner())->runEnvFileProcessor(
-            ['.env.template', '.env.test.template', ],
+            $envFilePaths,
+            $readMeFilePaths,
             hasOption('o', 'overwrite', $argv)
         );
+        break;
+
+	case 'readme':
+        (new \AuttajaCmd\Runner())->runReadMeFileProcessor(
+			$readMeFilePaths,
+			$envFilePaths
+		);
         break;
 }
 

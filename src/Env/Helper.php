@@ -17,7 +17,7 @@ class Helper
     public function getDestinationFileFromTemplate(string $templatePath) : string
     {
         $matches = [];
-        preg_match('#([\.\w]+)\.template#', $templatePath, $matches);
+        preg_match('#(.+)\.template#', $templatePath, $matches);
 
         if (empty($matches) || ! isset($matches[1])) {
             throw new \Exception(sprintf('Templates must end in .template; "%s" is invalid.',$templatePath));
