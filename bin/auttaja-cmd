@@ -1,14 +1,19 @@
 #!/usr/bin/env php
 <?php
+
+use AuttajaCmd\Input\CommandLineInput;
+
 require(realpath(__DIR__ . '/../../../autoload.php'));
 
-$path = realpath(__DIR__) . DIRECTORY_SEPARATOR;
+$path  = realpath(__DIR__) . DIRECTORY_SEPARATOR;
+$input = (new CommandLineInput($argv));
 
 // TODO: In the future these will be from a config file.
 $envFilePaths    = ['.env.template', '.env.test.template', ];
 $readMeFilePaths = ['resources/readme' => '.'];
+$arguments       = (new CommandLineInput($argv));
 
-switch (getCommand($argv)) {
+switch ($arguments->command()) {
     case null:
     case 'help':
     case 'man':
@@ -19,82 +24,16 @@ switch (getCommand($argv)) {
         (new \AuttajaCmd\Runner())->runEnvFileProcessor(
             $envFilePaths,
             $readMeFilePaths,
-            hasOption('o', 'overwrite', $argv)
+            $arguments->parameterValue('overwrite', 'o', CommandLineInput::TYPE_BOOLEAN)
         );
         break;
 
-	case 'readme':
+    case 'readme':
         (new \AuttajaCmd\Runner())->runReadMeFileProcessor(
-			$readMeFilePaths,
-			$envFilePaths
-		);
+            $readMeFilePaths,
+            $envFilePaths
+        );
         break;
-}
-
-/**
- * Get the command from the input. The command has to be the first argument passed to the script.
- * An option (starting with - for short options or -- for long options) does not count as the command.
- *
- * @param mixed  $argv  The arguments list passed to the script.
- *
- * @return string|null
- */
-function getCommand(array $argv) : ?string
-{
-    $firstArg = (count($argv) >= 2) ? $argv[1] : null;
-
-    return ($firstArg[0] !== '-')
-        ? $firstArg
-        : null;
-}
-
-/**
- * Returns true if an option has been passed to the script.
- * This method is useful for options that don't take a parameter, but are automatically true when present.
- *
- * @param string      $shortOptionName  The option's short version, e.g. "v".
- * @param string|null $longOptionName   The options' long version, e.g. "version".
- * @param mixed       $argv             The arguments list passed to the script.
- *
- * @return bool
- */
-function hasOption(string $shortOptionName, ?string $longOptionName, array $argv) : bool
-{
-    return in_array('-' . $shortOptionName, $argv, true)
-        || in_array('--' . $longOptionName, $argv, true);
-}
-
-/**
- * Get the value for an option that has been passed to the script, or NULL if the option
- * is not present or was passed without a value.
- * To check whether an option has been passed at all, use hasOption().
- *
- * @param string      $shortOptionName  The option's short version, e.g. "v".
- * @param string|null $longOptionName   The options' long version, e.g. "version".
- * @param mixed       $argv             The arguments list passed to the script.
- *
- * @return mixed
- */
-function getOptionValue(string $shortOptionName, ?string $longOptionName, array $argv)
-{
-    $options = [$shortOptionName];
-    if ($longOptionName) {
-        $options[] = $longOptionName;
-    }
-
-    foreach ($options as $optionName) {
-        $key = array_search($optionName, $argv, true);
-
-        if ($key === false) {
-            continue;
-        }
-
-        if (array_key_exists(++$key, $argv)) {
-            return $argv[$key];
-        }
-    }
-
-    return null;
 }
 
 function displayHelp() : void
