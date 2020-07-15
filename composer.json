@@ -2,6 +2,7 @@
     "name": "firemidge/auttaja-cmd",
     "description": "A command line tool for projects based on the DDD Skeleton, to make set-up and repetitive development tasks as straightforward as possible",
     "type": "plugin",
+    "license": "GNU Lesser GPL v3.0",
     "authors": [
         {
             "name": "Jay Atkins",

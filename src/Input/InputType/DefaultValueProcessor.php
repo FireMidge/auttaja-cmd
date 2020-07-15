@@ -1,8 +1,15 @@
 <?php
+declare(strict_types=1);
 
-namespace  AuttajaCmd\Input\InputType;
+namespace AuttajaCmd\Input\InputType;
 
 use AuttajaCmd\Input\State;
+use function preg_match_all;
+use function trim;
+use function array_key_exists;
+use function sprintf;
+use function implode;
+use function shell_exec;
 
 /**
  * Calculates the value of the "default" property in a .template file.

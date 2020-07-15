@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Input;
+
+use function array_key_exists;
 
 class State
 {

@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Input\InputType;
+
+use function array_merge;
 
 /**
  * A collection of input types.
@@ -12,7 +15,7 @@ class Collection
 
     public function __construct(array $inputTypes = [])
     {
-        foreach ($inputTypes as $inputType) {
+        foreach ($inputTypes as $k => $inputType) {
             if (! $inputType instanceof InputType) {
                 throw new \Exception(sprintf(
                     'Item with key "%s" added to InputType collection is not an instance of InputType', $k

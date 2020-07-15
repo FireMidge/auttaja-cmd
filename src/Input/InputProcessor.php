@@ -1,9 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Input;
 
 use AuttajaCmd\Input\InputType\Collection;
 use AuttajaCmd\Input\InputType\InputType;
+use function trim;
+use function fgets;
 
 class InputProcessor
 {

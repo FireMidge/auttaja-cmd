@@ -1,8 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Env;
 
 use AuttajaCmd\Input\State;
+use function file_exists;
+use function fopen;
+use function fgets;
+use function fclose;
+use function file_put_contents;
+use function trim;
+use function preg_match;
+use function sprintf;
+use function array_key_exists;
+use function strlen;
+use function array_keys;
+use function implode;
 
 class Writer
 {
@@ -78,6 +91,8 @@ class Writer
                 }
             }
         }
+
+        fclose($fileHandle);
 
         file_put_contents($destinationFile, implode(PHP_EOL, $envFileLines));
 

@@ -1,10 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Env;
 
 use AuttajaCmd\Input\InputType\Any;
 use AuttajaCmd\Input\InputType\Collection;
 use AuttajaCmd\Input\State;
+use function file_exists;
+use function fopen;
+use function fgets;
+use function fclose;
+use function trim;
+use function preg_match;
+use function sprintf;
+use function strlen;
+use function strpos;
+use function json_decode;
 
 class Reader
 {

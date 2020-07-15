@@ -1,6 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Env;
+
+use function preg_match;
+use function count;
+use function sprintf;
 
 class Helper
 {

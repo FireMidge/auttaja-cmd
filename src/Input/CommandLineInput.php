@@ -1,6 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Input;
+
+use function array_shift;
+use function strlen;
+use function sprintf;
+use function array_map;
+use function explode;
+use function array_filter;
+use function array_key_exists;
+use function current;
+use function count;
+use function in_array;
+use function array_merge;
+use function is_numeric;
+use function trim;
 
 class CommandLineInput
 {
@@ -137,7 +152,8 @@ class CommandLineInput
      */
     public function parameterValue(?string $longArgumentName, ?string $shortArgumentName, string $expectedType)
     {
-        $hasLongForm = mb_strlen($longArgumentName) > 0;
+        // Not using mb_strlen here because it's less likely it will be installed locally
+        $hasLongForm = strlen($longArgumentName) > 0;
         $parameterNamesString = sprintf(
             '%s%s',
             $hasLongForm ? $longArgumentName : '',

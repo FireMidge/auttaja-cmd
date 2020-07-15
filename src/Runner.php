@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd;
 
@@ -14,7 +15,7 @@ class Runner
      * @param string[] $filePaths The path(s) to the .env file(s) to create.
      *                            May be the path to the template or the destination file.
      */
-    public function runEnvFileProcessor(array $filePaths = [], array $readMeFilePaths, bool $forceReCreate = false) : void
+    public function runEnvFileProcessor(array $filePaths, array $readMeFilePaths, bool $forceReCreate = false) : void
     {
         if (empty($filePaths)) {
             $filePaths = [

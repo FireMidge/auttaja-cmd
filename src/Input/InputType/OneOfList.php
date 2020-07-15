@@ -1,9 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Input\InputType;
 
 use AuttajaCmd\Input\InputType\OneOfList\Option;
 use AuttajaCmd\Input\State;
+use function array_key_exists;
+use function sprintf;
+use function implode;
 
 /**
  * Use this when wanting to allow the user to choose one of a list of options.

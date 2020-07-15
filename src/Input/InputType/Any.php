@@ -1,8 +1,14 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\Input\InputType;
 
 use AuttajaCmd\Input\State;
+use function strlen;
+use function is_numeric;
+use function sprintf;
+use function implode;
+use function in_array;
 
 /**
  * Use this when allowing the user to enter free text, and then optionally verifying the input.
@@ -27,6 +33,7 @@ class Any implements InputType
 	private $example      = null;
 	private $annotations  = [];
 	private $bucketName   = null;
+	/** @var null|string */
 	private $keyName      = null;
 	private $asksForInput = true;
 	private $shouldSave   = true;
@@ -226,7 +233,7 @@ class Any implements InputType
 
     public function default(State $state)
     {
-        return $this->defaultValueProcessor->process($this->default, $state, 'shell');
+        return $this->defaultValueProcessor->process((string) $this->default, $state, 'shell');
     }
 
     public function shouldSave() : bool
