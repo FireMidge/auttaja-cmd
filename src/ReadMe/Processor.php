@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace AuttajaCmd\ReadMe;
 
@@ -9,13 +10,13 @@ class Processor
         foreach ($filePaths as $fileOrDirectoryPath => $destinationFileOrDirectoryPath) {
             $fullDestinationPath = realpath($destinationFileOrDirectoryPath);
             if ($fullDestinationPath === false) {
-                throw new \Exception(sprintf('Destination path %s does not exist', $destinationPath));
+                throw new \Exception(sprintf('Destination path %s does not exist', $fullDestinationPath));
             }
 
             if (strpos(__DIR__, $fullDestinationPath) !== 0) {
                 throw new \Exception(sprintf(
                     'Destination path has to be in the current application\'s directory, "%s" is invalid',
-                    $destinationPath
+                    $fullDestinationPath
                 ));
             }
 
