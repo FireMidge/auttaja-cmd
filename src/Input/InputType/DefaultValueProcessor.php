@@ -16,7 +16,7 @@ use function shell_exec;
  */
 class DefaultValueProcessor
 {
-    public function process(string $default, State $state, $defaultMethod = 'shell')
+    public function process(string $default, State $state, string $defaultMethod = 'shell')
     {
         $matches = [];
         // TODO: Make more intelligent.. what if brackets are used inside the command?
@@ -26,7 +26,7 @@ class DefaultValueProcessor
 
         if (empty ($matches)) {
             // Defaulting to shell command if no other known instruction (prefix) given
-            return trim($this->calculateValue($defaultMethod, $default, $envVarsWithPrefix));
+            return trim((string) $this->calculateValue($defaultMethod, $default, $envVarsWithPrefix));
         }
 
         /**

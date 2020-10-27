@@ -1,6 +1,37 @@
 #!/usr/bin/env php
 <?php
 
+\spl_autoload_register(function ($class) {
+
+    $prefix = 'AuttajaCmd\\';
+
+    // base directory for the namespace prefix
+    $baseDirectory = \realpath(__DIR__ . '/../src/');
+
+    $len = \strlen($prefix);
+    if (\strncmp($prefix, $class, $len) !== 0) {
+        // Class does not have the expected prefix; move on to the next autoloader
+        return;
+    }
+
+    $relativeClassName = \substr($class, $len);
+    $filePath          = \sprintf(
+        '%s%s%s.php',
+        $baseDirectory,
+        DIRECTORY_SEPARATOR,
+        \str_replace(
+            '\\',
+            DIRECTORY_SEPARATOR,
+            $relativeClassName
+        )
+    );
+
+    // if the file exists, require it
+    if (\file_exists($filePath)) {
+        require $filePath;
+    }
+});
+
 use AuttajaCmd\Input\CommandLineInput;
 
 $path  = \realpath(__DIR__) . DIRECTORY_SEPARATOR;
@@ -50,35 +81,3 @@ env                    Create the .env file(s).
 
 EOF;
 }
-
-
-\spl_autoload_register(function ($class) {
-
-    $prefix = 'AuttajaCmd\\';
-
-    // base directory for the namespace prefix
-    $baseDirectory = \realpath(__DIR__ . '/../src/');
-
-    $len = \strlen($prefix);
-    if (\strncmp($prefix, $class, $len) !== 0) {
-        // Class does not have the expected prefix; move on to the next autoloader
-        return;
-    }
-
-    $relativeClassName = \substr($class, $len);
-    $filePath          = \sprintf(
-        '%s%s%s.php',
-        $baseDirectory,
-        DIRECTORY_SEPARATOR,
-        \str_replace(
-            '\\',
-            DIRECTORY_SEPARATOR,
-            $relativeClassName
-        )
-    );
-
-    // if the file exists, require it
-    if (\file_exists($filePath)) {
-        require $filePath;
-    }
-});
